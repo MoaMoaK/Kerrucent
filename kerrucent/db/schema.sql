@@ -23,7 +23,7 @@ create table probes (
 );
 insert into probes(name, filename, mac, alpha, beta)
 values (
-    'Machine a laver',
+    'Ne pas supprimer',
     'test',
     '00:11:22:33:44:55',
     0.000192522,
@@ -36,4 +36,3 @@ create table alerts (
     email text not null,
     probe_id integer not null
 );
-

@@ -418,6 +418,17 @@ def add_probe():
     return render_template('addprobe.html', error=error)
 
 
+@app.route('/managealerts/')
+def manage_alerts():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    db = get_db()
+    cur = db.execute('SELECT alerts.id, alerts.email, probes.name FROM alerts JOIN probes ON alerts.probe_id=probes.id ORDER BY alerts.id')
+    alerts = cur.fetchall()
+
+    return render_template('manageprobes.html', alerts=alerts)
+
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():

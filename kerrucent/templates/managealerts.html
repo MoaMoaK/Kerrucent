@@ -1,0 +1,36 @@
+{% set main_tab = 'managealerts' %}
+{% extends "layout.html" %}
+{% block body %}
+    <h2> Les alertes gérées par le système</h2>
+    <table>
+        <tr>
+            <td>
+                &nbsp;Email concerné&nbsp;
+            </td>
+            <td>
+                &nbsp;Capteur surveillé&nbsp;
+            </td>
+        </tr>
+        {% for a in alerts %}
+        <tr>
+            <td>
+                &nbsp;{{ a.email }}&nbsp;
+            </td>
+            <td>
+                &nbsp;{{ a.name }}&nbsp;
+            </td>
+            <td>
+                &nbsp;<a href="{{ url_for('edit_alert', id=a.id) }}">Modifier</a>&nbsp;
+            </td>
+            <td>
+                &nbsp;<a href="{{ url_for('remove_alert', id=a.id) }}">Supprimer</a>&nbsp;
+            </td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td>
+                &nbsp;<a href="{{ url_for('add_alert') }}">Ajouter une alerte</a>&nbsp;
+            </td>
+        </tr>
+    </table>
+{% endblock %}
