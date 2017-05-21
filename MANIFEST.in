@@ -1,0 +1,4 @@
+graft kerrucent/templates
+graft kerrucent/static
+graft kerrucent/scripts
+include kerrucent/db/schema.sql

@@ -1,0 +1,17 @@
+{% set main_tab = 'manageusers' %}
+{% extends "layout.html" %}
+{% block body %}
+    {% if error %}<p class=error><strong>Erreur:</strong> {{ error }}{% endif %}
+    <form method="POST">
+        <h2>Ajout d'un nouvel utilisateur</h2>
+        <dl>
+            <dt>Nom d'utilisateur :
+            <dd><input name="username" type="text">
+            <dt>Mot de passe :
+            <dd><input name="password1" type="password" size="30">
+            <dt>Répétez le mot de passe :
+            <dd><input name="password2" type="password" size="30">
+            <dd><input type="submit" value="Ajouter">
+        </dl>
+    </form>
+{% endblock %}

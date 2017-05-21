@@ -1,0 +1,49 @@
+{% set main_tab = 'apercu' %}
+{% extends "layout.html" %}
+{% block body %}
+    <form method="post" action={{ request.path }}>
+        <table class="center">
+            <tr>
+                <td>
+                    <h3>Temps de visualisation&nbsp;</h3>
+                </td>
+                <td>
+                    <h3>Grandeurs visualisées&nbsp;</h3>
+                </td>
+                <td>
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input name="time" value="heure" type="radio">1 Heure<br />
+                    <input name="time" value="jour" checked="" type="radio">1 Jour<br />
+                    <input name="time" value="mois" type="radio">1 Mois<br />
+                    <input name="time" value="an" type="radio">1 An<br />
+                </td>
+                <td>
+                    <select name="grandeurs" size="6" multiple="multiple">
+                        <option selected="" value="courant">Courant</option>
+                        <option value="tension">Tension</option>
+                        <option value="dephasage">Déphasage</option>
+                        <option value="puiss_active">Puissance Active</option>
+                        <option value="puiss_reactive">Puissance Réactive</option>
+                        <option value="puiss_apparente">Puissance Apparente</option>
+                   </select>
+                </td>
+                <td>
+                    <input type="submit" value="Rafraichir"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    {{ image|safe }}
+
+    <ul class=details>
+        <li><h2>The name of the probe : {{ probe.name }}</h2>
+        The id of the probe : {{ probe.id }}<br />
+        The filepath of the probe : {{ probe.filename }}<br />
+        The mac of the probe : {{ probe.mac }}<br />
+    </ul>
+{% endblock %}

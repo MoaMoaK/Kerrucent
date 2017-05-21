@@ -1,0 +1,19 @@
+{% set main_tab = 'manageprobes' %}
+{% extends "layout.html" %}
+{% block body %}
+    {% if error_name %}<p class=error><strong>Erreur (changement de nom du capteur) : </strong> {{ error_name }}{% endif %}
+    {% if error_mac %}<p class=error><strong>Erreur (changement de la MAC) : </strong> {{ error_mac }}{% endif %}
+    {% if error_pred %}<p class=error><strong>Erreur (changement des paramètres de prédiction) : </strong> {{ error_pred }}{% endif %}
+    <form method="POST">
+        <h2>Réglages de {{ probe.name }}</h2>
+        <dl>
+            <dt>Nom du capteur : <input name="name" type="text" placeholder="{{ probe.name }}">
+            <dt>Addresse MAC : <input name="mac" type="text" placeholder="{{ probe.mac }}">
+            <dt>Réglages avancés de prédiction (Holt-Winter Forecatsing)
+            <dd>Paramètre alpha : <input name="alpha" type="text" placeholder="{{ probe.alpha }}">
+            <dd>Paramètre beta : <input name="beta" type="text" placeholder="{{ probe.beta }}">
+            <dt><input type="submit" value="Modifier">
+            <dt><a href="{{ url_for('remove_probe', id=probe.id) }}">Supprimer</a>
+        </dl>
+    </form>
+{% endblock %}

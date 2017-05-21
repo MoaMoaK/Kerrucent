@@ -1,0 +1,25 @@
+{% set main_tab = 'manageusers' %}
+{% extends "layout.html" %}
+{% block body %}
+    <h2> Les utilisateurs présents sur le système</h2>
+    <table>
+        {% for u in users %}
+        <tr>
+            <td>
+                &nbsp;{{ u.username }}&nbsp;
+            </td>
+            <td>
+                &nbsp;<a href="{{ url_for('edit_user', id=u.id) }}">Modifier</a>&nbsp;
+            </td>
+            <td>
+                &nbsp;<a href="{{ url_for('remove_user', id=u.id) }}">Supprimer</a>&nbsp;
+            </td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td>
+                &nbsp;<a href="{{ url_for('add_user') }}">Ajouter un utilisateur</a>&nbsp;
+            </td>
+        </tr>
+    </table>
+{% endblock %}

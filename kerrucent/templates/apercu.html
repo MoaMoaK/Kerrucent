@@ -1,0 +1,20 @@
+{% set main_tab = 'apercu' %}
+{% extends "layout.html" %}
+{% block body %}
+    <table>
+    {% for p in probes %}
+        {% if loop.index0%2 == 0 %}
+        <tr>
+        {% endif %}
+            <td>
+                <a href="/detail/{{ p.id }}"><br />
+                        {{ images[p.id]|safe }}</a>
+            </td>
+        {% if loop.index0%2 == 1 %}
+        </tr>
+        {% endif %}
+    {% else %}
+        <li><em>Unbelievable. No probes here so far</em>
+    {% endfor %}
+    </ul>
+{% endblock %}

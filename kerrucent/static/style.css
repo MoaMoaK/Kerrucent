@@ -1,0 +1,28 @@
+body                { font-family: sans-serif; background: #eee; }
+a, h1, h2           { color: #377ba8; }
+h1, h2              { font-family: 'Georgia', serif; margin: 0; }
+h1                  { border-bottom: 2px solid #eee; }
+h2                  { font-size: 1.2em; }
+img                 { margin: 0 auto; display: block; }
+
+.page               { margin: 2em auto; width: 70em; border: 5px solid #ccc;
+                        padding: 0.8em; background: white; border-radius: 50px 50px 0 0; }
+.entries            { list-style: none; margin: 0; padding: 0; }
+.entries li         { margin: 0.8em 1.2em; }
+.entries li h2      { margin-left: -1em; }
+.add-entry          { font-size: 0.9em; border-bottom: 1px solid #ccc; }
+.add-entry dl       { font-weight: bold; }
+.tabs               { text-align: left; font-size: 0.8em; padding: 0.3em; margin-bottom: 1em;
+                        background: linear-gradient(#e0eefc 70%,#ccc 100%); border: solid #ccc; border-width: 3px 3px 1px 3px;
+                        border-radius: 50px 50px 10px 10px; }
+.tabs ul            { list-style-type: none; padding: 0; margin: 0; }
+.tabs li            { display: inline; margin: 0 5px 0 0; }
+.tabs a             { text-decoration: none; }
+.tabs .accueil      { font-size: 2.5em; margin: 0 50px 0 20px; }
+.tabs .navigation   { font-size: 1.2em; background: linear-gradient(#ccc, #fff); border: solid #ccc;
+                        border-width: 1px 1px 0 1px; border-radius: 10px 10px 0 0;
+                        padding: 8px; color:#377ba8; }
+.tabs .maintab      { background: #fff; color:#377ba8; }
+.flash              { background: #cee5F5; padding: 0.5em; border: 1px solid #aacbe2; }
+.error              { background: #f0d6d6; padding: 0.5em; }
+.center             { margin: 0 auto; }

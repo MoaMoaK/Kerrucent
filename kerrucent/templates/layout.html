@@ -1,0 +1,23 @@
+<!doctype html>
+<title>Kerrucent</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+    <div class=tabs>
+        <ul>
+            <li><a class="accueil" href="{{ url_for('accueil') }}">Kerrucent</a></li>
+            {% if not session.logged_in %}
+            <li><a class="navigation {% if main_tab == 'login' %}maintab{% endif %}" href="{{ url_for('login') }}" >Se connecter</a></li>
+            {% else %}
+            <li><a class="navigation {% if main_tab == 'apercu' %}maintab{% endif %}" href="{{ url_for('apercu') }}" >Apercu global</a></li>
+            <li><a class="navigation {% if main_tab == 'manageprobes' %}maintab{% endif %}" href="{{ url_for('manage_probes') }}" >Gestion des capteurs</a></li>
+            <li><a class="navigation" href="#3">Gestion des alertes</a></li>
+            <li><a class="navigation {% if main_tab == 'manageusers' %}maintab{% endif %}" href="{{ url_for('manage_users') }}" >Gestion des utilisateurs</a></li>
+            <li><a class="navigation {% if main_tab == 'logout' %}maintab{% endif %}" href="{{ url_for('logout') }}" >Se déconnecter</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% for message in get_flashed_messages() %}
+        <div class=flash>{{ message }}</div>
+    {% endfor %}
+    {% block body %}{% endblock %}
+</div>

@@ -1,0 +1,25 @@
+{% set main_tab = 'manageprobes' %}
+{% extends "layout.html" %}
+{% block body %}
+    <h2> Les capteurs présents sur le système</h2>
+    <table>
+        {% for p in probes %}
+        <tr>
+            <td>
+                &nbsp;{{ p.name }}&nbsp;
+            </td>
+            <td>
+                &nbsp;<a href="{{ url_for('edit_probe', id=p.id) }}">Modifier</a>&nbsp;
+            </td>
+            <td>
+                &nbsp;<a href="{{ url_for('remove_probe', id=p.id) }}">Supprimer</a>&nbsp;
+            </td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td>
+                &nbsp;<a href="{{ url_for('add_probe') }}">Ajouter un capteur</a>&nbsp;
+            </td>
+        </tr>
+    </table>
+{% endblock %}

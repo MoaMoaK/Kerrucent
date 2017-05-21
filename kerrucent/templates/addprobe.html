@@ -1,0 +1,17 @@
+{% set main_tab = 'manageprobes' %}
+{% extends "layout.html" %}
+{% block body %}
+    {% if error %}<p class=error><strong>Erreur:</strong> {{ error }}{% endif %}
+    <form method="POST">
+        <h2>Ajout d'une nouvelle sonde</h2>
+        <dl>
+            <dt>Nom de la sonde : <input name="name" type="text">
+            <dt>Addresse MAC : <input name="mac" type="text">
+            <dt>Paramètres de prédiction Holt-Winter Forecasting (optionnel) :
+            <dd>alpha : <input name="alpha" type="text" placeholder="0.000192522">
+            <dd>beta : <input name="beta" type="text" placeholder="0.00000802250">
+            <dd>période (en s) : <input name="period" type="text" placeholder="86400">
+            <dt><input type="submit" value="Ajouter">
+        </dl>
+    </form>
+{% endblock %}
