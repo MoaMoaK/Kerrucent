@@ -7,4 +7,4 @@ kerrucent/scripts/graph.pyc
 kerrucent/scripts/__init__.pyc
 kerrucent/scripts/__pycache__/
 kerrucent/static/graph/
-kerrucent/rrd/test.rrd
+kerrucent/rrd/*.rrd

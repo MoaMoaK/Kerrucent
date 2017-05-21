@@ -10,6 +10,7 @@ from hashlib import sha256
 from .scripts.graph import *
 from .scripts.rrd import *
 from random import randint
+from email_validator import validate_email, EmailNotValidError
 
 app = Flask(__name__) # create the application instance :)
 app.config.from_object(__name__) # load config from this file , kerrucent.py
@@ -427,7 +428,54 @@ def manage_alerts():
     cur = db.execute('SELECT alerts.id, alerts.email, probes.name FROM alerts JOIN probes ON alerts.probe_id=probes.id ORDER BY alerts.id')
     alerts = cur.fetchall()
 
-    return render_template('manageprobes.html', alerts=alerts)
+    return render_template('managealerts.html', alerts=alerts)
+
+
+
+
+@app.route('/addalert/', methods=['GET', 'POST'])
+def add_alert():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    db = get_db()
+    cur = db.execute('SELECT id, name FROM probes')
+    probes = cur.fetchall()
+
+    error = None
+    if request.method == 'POST' :
+        if not request.form['email'] or not request.form['probe'] :
+            error = 'Les champs ne sont pas tous remplis'
+        else :
+            try :
+                probe_id = int(request.form['probe'])
+            except :
+                error = 'Veuillez ne pas foutre la mettre dans les données POST ^^'
+                print(sys.exc_info())
+            else :
+                if probe_id in [p['id'] for p in probes] :
+                    try :
+                        v = validate_email(request.form['email'])
+                        email = v['email']
+                    except EmailNotValidError as e :
+                        error = str(e)
+                        print(sys.exc_info())
+                    else :
+                        probe_id = request.form['probe']
+                        try :
+                            db.execute('INSERT INTO alerts (email, probe_id) VALUES (?, ?)',
+                                    [email, probe_id])
+                            db.commit()
+                        except :
+                            error = 'Une erreur est survenue lors de l\'ajout de l\'alerte à la base de donnée.'
+                            print(sys.exc_info())
+                        else :
+                            flash('La nouvelle alerte a été correctement ajoutée')
+                else :
+                    error = 'Impossible de trouver le capteur demandé'
+    return render_template('addalert.html', error=error, probes=probes)
+
+
 
 
 @app.route('/login/', methods=['GET', 'POST'])
