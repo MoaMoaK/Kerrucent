@@ -11,6 +11,7 @@ from .scripts.graph import *
 from .scripts.rrd import *
 from random import randint
 from email_validator import validate_email, EmailNotValidError
+import re
 
 app = Flask(__name__) # create the application instance :)
 app.config.from_object(__name__) # load config from this file , kerrucent.py
@@ -133,7 +134,7 @@ def detail(id) :
     if len(grandeurs) == 0 :
         grandeurs.append(Grandeur.courant)
 
-    image= graph_detail(probe['filename'], probe['name'], time, grandeurs, width=1000, height=500)['image_info']
+    image = graph_detail(probe['filename'], probe['name'], time, grandeurs, width=1000, height=500)['image_info']
 
     return render_template('detail.html', probe=probe, image=image)
 
@@ -326,15 +327,18 @@ def edit_probe(id):
 
 
         if request.form['mac'] and request.form['mac'] != probe['mac'] :    # On change la MAC
-            mac = request.form['mac']
-            try :
-                db.execute('UPDATE probes SET mac=? WHERE id=?', [mac, id])
-                db.commit()
-            except :
-                error_pass = 'Une erreur est survenue lors de la modification de la MAC dans la base de donnée'
-                print(sys.exc_info())
-            else :
-                flash('La mac du capteur '+probe['name']+' a correctement été modifié')
+            if not re.match('([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}', request.form['mac']) :
+                error_mac = 'Veuillez entrer une addresse MAC au format correct'
+            else:
+                mac = request.form['mac']
+                try :
+                    db.execute('UPDATE probes SET mac=? WHERE id=?', [mac, id])
+                    db.commit()
+                except :
+                    error_mac = 'Une erreur est survenue lors de la modification de la MAC dans la base de donnée'
+                    print(sys.exc_info())
+                else :
+                    flash('La mac du capteur '+probe['name']+' a correctement été modifié')
 
         if request.form['alpha'] or request.form['beta'] :      # On change les paramètres de prédiction
             alpha = probe['alpha']
@@ -397,24 +401,27 @@ def add_probe():
                 while os.path.isfile(os.path.join(app.root_path, 'rrd/', final_filename+'.rrd')) :
                     i+=1
                     final_filename = filename + str(i).zfill(2)
-                mac = request.form['mac']
-                try :
-                    create_rrd(final_filename, alpha=alpha, beta=beta, period=period)
-                except :
-                    error = 'Une erreur est survenue lors de la création de la RRD'
-                    print(sys.exc_info())
+                if not re.match('([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}', request.form['mac']) :
+                    error = 'Veuillez entrer une adrrese MAC au format correct'
                 else :
+                    mac = request.form['mac']
                     try :
-                        db = get_db()
-                        db.execute('INSERT INTO probes (name, filename, mac, alpha, beta) VALUES (?, ?, ?, ?, ?)',
-                                [name, final_filename, mac, alpha, beta])
-                        db.commit()
+                        create_rrd(final_filename, alpha=alpha, beta=beta, period=period)
                     except :
-                        error = 'Une erreur est survenue lors de l\'ajout de la sonde à la base de donnée. Suppression de '+final_filename+'.rrd'
-                        del_rrd(final_filename)
+                        error = 'Une erreur est survenue lors de la création de la RRD'
                         print(sys.exc_info())
                     else :
-                        flash('La nouvelle sonde '+name+' a été correctement ajoutée')
+                        try :
+                            db = get_db()
+                            db.execute('INSERT INTO probes (name, filename, mac, alpha, beta) VALUES (?, ?, ?, ?, ?)',
+                                    [name, final_filename, mac, alpha, beta])
+                            db.commit()
+                        except :
+                            error = 'Une erreur est survenue lors de l\'ajout de la sonde à la base de donnée. Suppression de '+final_filename+'.rrd'
+                            del_rrd(final_filename)
+                            print(sys.exc_info())
+                        else :
+                            flash('La nouvelle sonde '+name+' a été correctement ajoutée')
 
     return render_template('addprobe.html', error=error)
 
