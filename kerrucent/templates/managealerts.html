@@ -23,7 +23,7 @@
                 &nbsp;<a href="/">Modifier</a>&nbsp;
             </td>
             <td>
-                &nbsp;<a href="/">Supprimer</a>&nbsp;
+                &nbsp;<a href="{{ url_for('remove_alert', id=a.id) }}">Supprimer</a>&nbsp;
             </td>
         </tr>
     {% endfor %}

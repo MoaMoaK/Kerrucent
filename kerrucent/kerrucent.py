@@ -165,9 +165,13 @@ def remove_user(id):
     if not user :
         flash('L\'utilisateur n\'a pas été trouvé')
     else :
-        db.execute('DELETE FROM users WHERE id=?', [id])
-        db.commit()
-        flash('L\'utilisateur '+user['username']+' a bien été supprimé')
+        try :
+            db.execute('DELETE FROM users WHERE id=?', [id])
+            db.commit()
+        except :
+            flash ('Une erreur est survenue lors de la suppression de '+user['username']+' de la BDD')
+        else :
+            flash('L\'utilisateur '+user['username']+' a bien été supprimé')
 
     return redirect(url_for('manage_users'))
 
@@ -284,12 +288,19 @@ def remove_probe(id):
         try :
             db.execute('DELETE FROM probes WHERE id=?', [id])
             db.commit()
-
-            del_rrd(probe['filename'])
+            db.execute('DELETE FROM alerts WHERE probe_id=?', [id])
+            db.commit()
         except :
+            flash('Une erreur est survenue lors de la suppression de '+probe['name']+' de la BDD')
             print(sys.exc_info())
         else :
-            flash('Le capteur '+probe['name']+' a bien été supprimé')
+            try :
+                del_rrd(probe['filename'])
+            except :
+                flash('Une erreur est survenue lors de la suppression de '+probe['filename']+'.rrd')
+                print(sys.exc_info())
+            else:
+                flash('Le capteur '+probe['name']+' a bien été supprimé')
 
 
     return redirect(url_for('manage_probes'))
@@ -436,6 +447,33 @@ def manage_alerts():
     alerts = cur.fetchall()
 
     return render_template('managealerts.html', alerts=alerts)
+
+
+
+
+@app.route('/removealert/<int:id>')
+def remove_alert(id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    db = get_db()
+    cur = db.execute('SELECT id FROM alerts WHERE id=?', [id])
+    alert = cur.fetchone()
+
+    if not alert :
+        flash('L\'alerte demandée n\'a pas été trouvé')
+    else :
+        try :
+            db.execute('DELETE FROM alerts WHERE id=?', [id])
+            db.commit()
+        except :
+            flash('Une erreur est survenue lors de la suppression de l\'alerte')
+            print(sys.exc_info())
+        else :
+            flash('L\'alerte a bien été supprimé')
+
+
+    return redirect(url_for('manage_alerts'))
 
 
 
