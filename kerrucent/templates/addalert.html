@@ -6,11 +6,12 @@
         <h2>Ajout d'une nouvelle alerte</h2>
         <dl>
             <dt>Email d'alerte : <input name="email" type="text">
-            <select name="probe" size="1">
-                {% for p in probes %}
-                <option value="{{ p.id }}">{{ p.name }}</option>
-                {% endfor %}
-            </select>
+            <dt>Capteur associé :
+                <select name="probe" size="1">
+                    {% for p in probes %}
+                    <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
             <dt><input type="submit" value="Ajouter">
         </dl>
     </form>

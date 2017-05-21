@@ -1,0 +1,20 @@
+{% set main_tab = 'managealerts' %}
+{% extends "layout.html" %}
+{% block body %}
+    {% if error_email %}<p class=error><strong>Erreur (changement d'email) : </strong> {{ error_email }}{% endif %}
+    {% if error_probe %}<p class=error><strong>Erreur (changement du capteur associé) : </strong> {{ error_probe }}{% endif %}
+    <form method="POST">
+        <h2>Réglages de l'alerte</h2>
+        <dl>
+            <dt>Email : <input name="email" type="text" placeholder="{{ alert.email }}">
+            <dt>Capteur associé :
+                <select name="probe" size="1">
+                    {% for p in probes %}
+                    <option value="{{ p.id }}" {% if p.id == alert.probe_id %} selected="" {% endif %}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            <dt><input type="submit" value="Modifier">
+            <dt><a href="{{ url_for('remove_alert', id=alert.id) }}">Supprimer</a>
+        </dl>
+    </form>
+{% endblock %}

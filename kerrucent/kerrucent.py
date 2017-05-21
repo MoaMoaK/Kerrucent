@@ -478,6 +478,69 @@ def remove_alert(id):
 
 
 
+@app.route('/editalert/<int:id>/', methods=['GET', 'POST'])
+def edit_alert(id):
+    if not session.get('logged_in') :
+        return redirect(url_for('login'))
+
+    error_email = None
+    error_probe = None
+
+    db = get_db()
+    cur = db.execute('SELECT email, probe_id FROM alerts WHERE id=?', [id])
+    alert = cur.fetchone()
+    cur = db.execute('SELECT id FROM probes')
+    probes = cur.fetchall()
+
+    if not alert:
+        flash('L\'alerte que vous avez demandé n\'existe pas')
+        return redirect(url_for('manage_alerts'))
+
+    if request.method == 'POST':
+        if request.form['email'] and request.form['email'] != alert['email']:      # On change l'email
+            try :
+                v = validate_email(request.form['email'])
+                email = v['email']
+            except EmailNotValidError as e :
+                error_email = str(e)
+                print(sys.exc_info())
+            else :
+                try :
+                    db.execute('UPDATE alerts SET email=? WHERE id=?', [email, id])
+                    db.commit()
+                except :
+                    error_email = 'Une erreur est survenue lors de la modification de l\'email dans la base de donnée'
+                    print(sys.exc_info())
+                else:
+                    flash ('L\'email '+alert['email']+' a bien été changé en '+email)
+
+
+        if request.form['probe'] and request.form['probe'] != str(alert['probe_id']) :    # On change le capteur associé
+            try :
+                probe_id = int(request.form['probe'])
+            except :
+                error_probe = 'Veuillez ne pas foutre la merde dans les données POST ^^'
+                print(sys.exc_info())
+            else :
+                if probe_id in [p['id'] for p in probes] :
+                    try :
+                        db.execute('UPDATE alerts SET probe_id=? WHERE id=?', [probe_id, id])
+                        db.commit()
+                    except :
+                        error_probe = 'Une erreur est survenue lors de la modification du capteur associé dans la base de donnée'
+                        print(sys.exc_info())
+                    else :
+                        flash('Le capteur associé a correctement été modifié')
+                else :
+                    error_probe = 'Impossible de trouver le capteur que vous avez demandé'
+
+    alert = db.execute('SELECT id, email, probe_id FROM alerts WHERE id=?', [id]).fetchone()
+    probes = db.execute('SELECT id, name FROM probes').fetchall()
+
+    return render_template('editalert.html', alert=alert, probes=probes, error_email=error_email, error_probe=error_probe)
+
+
+
 @app.route('/addalert/', methods=['GET', 'POST'])
 def add_alert():
     if not session.get('logged_in'):
@@ -495,7 +558,7 @@ def add_alert():
             try :
                 probe_id = int(request.form['probe'])
             except :
-                error = 'Veuillez ne pas foutre la mettre dans les données POST ^^'
+                error = 'Veuillez ne pas foutre la merde dans les données POST ^^'
                 print(sys.exc_info())
             else :
                 if probe_id in [p['id'] for p in probes] :
