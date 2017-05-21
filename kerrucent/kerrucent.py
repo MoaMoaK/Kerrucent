@@ -225,6 +225,8 @@ def edit_user(id):
                 else :
                     flash('Le mot de passe de '+user['username']+' a correctement été modifié')
 
+    user = db.execute('SELECT id, username FROM users WHERE id=?', [id]).fetchone()
+
     return render_template('edituser.html', user=user, error_name=error_name, error_pass=error_pass)
 
 
@@ -379,6 +381,8 @@ def edit_probe(id):
                     else :
                         flash('Les paramètres de prédiction de '+probe['name']+' ont correctement été changé')
 
+
+    probe = db.execute('SELECT id, name, filename, mac, alpha, beta FROM probes WHERE id=?', [id]).fetchone()
 
     return render_template('editprobe.html', probe=probe, error_name=error_name, error_mac=error_mac, error_pred=error_pred)
 
