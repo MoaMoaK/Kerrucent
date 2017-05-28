@@ -20,3 +20,5 @@ def sendmail (to, text=None) :
     s.sendmail(FROM, [to], msg.as_string())
     s.quit()
 
+    print(time.ctime() + " Mail envoyé à " + to)
+
