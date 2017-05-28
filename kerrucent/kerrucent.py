@@ -12,8 +12,10 @@ import os
 import sys
 import sqlite3
 import re
+import time
 from random import randint
 from hashlib import sha256
+import threading
 
 # Import other packages
 from email_validator import validate_email, EmailNotValidError
@@ -25,6 +27,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 # Import custom packages
 from .scripts.graph import *
 from .scripts.rrd import *
+from .scripts.mail import *
 
 
 
@@ -43,6 +46,7 @@ app.config.update(dict(
     SECRET_KEY='development key',
 ))
 app.config.from_envvar('KERRUCENT_SETTINGS', silent=True)
+
 
 
 
@@ -83,6 +87,63 @@ def close_db(error):
     """Closes the database again at the end of the request."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
+
+
+
+#################################
+## Détection d'erreur (thread) ##
+#################################
+
+def test_error () :
+    """Vérifie régulièrement si il y a une erreur pour chaque capteur surveillé et envoie un mail si il y a une erreur"""
+
+    # On doit ramener le contexte de l'appli
+    # car on lance la requete BDD avant la 1ère requete HTTP
+    with app.app_context():
+
+        # On récupère les infos sur les catpeurs à surveiller (id, filename et email)
+        db = get_db()
+        cur = db.execute('SELECT probes.name, probes.filename, probes.id, alerts.email FROM alerts JOIN probes ON alerts.probe_id=probes.id')
+        probes_to_watch = cur.fetchall()
+
+        # On trie la liste des capteurs pour éviter de checker 2 fois le même capteur pour 2 emails
+        sorted_probes = unique (probes_to_watch)
+
+        # Pour chaque capteur, on vérifie si il y a des erreurs et on envoie un mail le cas échéant
+        for p in sorted_probes :
+            if has_error(p[0]['filename']) :
+                for j in range(len(p)) :
+                    sendmail(p[j]['email'], text='Le capteur '+p[j]['name']+' a des erreurs')
+
+        # On met le thread en puase pour pas spammer de mails et de vérifictions
+        time.sleep(60)
+
+
+
+
+def unique (s) :
+    """Trie les tuples (name, filename, id, email) pour éviter les doublons de capteurs (sans perdre l'info de l'email)"""
+
+    # On utilise un tri par dictionnaire (c'est globalement ce qu'il y a de plus rapide en python)
+    u = {}
+
+    # On regarde tous les éléments
+    for x in s :
+        # Si on a jamais rencontré ce capteur, on crée le champs associé dans le dico
+        if not x['name'] in u.keys() :
+            u[x['name']] = []
+        # On ajoute le cpateur (et les infos associées) à ce champs
+        u[x['name']] += [x]
+
+    # On renvoie les tuples d'infos
+    return u.values()
+
+
+
+
+# On lance un thread pour la vérification d'erreur et l'envoi d'email
+threading.Thread(target=test_error).start()
 
 
 

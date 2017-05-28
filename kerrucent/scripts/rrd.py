@@ -71,8 +71,29 @@ def update_rrd(name, values, time=None) :
 
 
 def tune_rrd_pred(name, alpha=None, beta=None) :
+    """Permet de modfiier les paramètres alpha et beta des RRD et de prédiction"""
+
     if alpha :
         rrdtool.tune(os.path.join(APP_ROOT, RRD_PATH, name+'.rrd'), '--alpha', str(alpha))
     if beta :
         rrdtool.tune(os.path.join(APP_ROOT, RRD_PATH, name+'.rrd'), '--beta', str(beta))
     return None
+
+
+
+def has_error (name, start='-1min') :
+    """Vérifie si une rrd (donc un capteur présente des erreurs"""
+
+    timerange, names, results = rrdtool.fetch(os.path.join(APP_ROOT, RRD_PATH, name+'.rrd'), 'FAILURES', '--start', start)
+    for i in range(len(results)) :
+        for j in range(len(names)) :
+            if results[i][j] == 1.0 :
+                return (i,j)
+
+    return None
+
+
+
+
+
+

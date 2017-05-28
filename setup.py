@@ -7,6 +7,8 @@ setup(
     install_requires=[
         'flask',
         'rrdtool',
-        'email_validator'
+        'email_validator',
+        'smtplib',
+        'MIMEText'
     ],
 )
