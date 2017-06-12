@@ -53,18 +53,18 @@ def del_rrd(name):
 
 
 
-def update_rrd(name, values, time=None) :
+def update_rrd(name, values, t=None) :
     """Ajoute une valeur dans une rrd"""
 
-    if not time :
-        time = int(time.time())
+    if not t :
+        t = int(time.time())
 
     params = []
     # Le nom de la RRD
     params += [os.path.join(APP_ROOT, RRD_PATH, name+'.rrd')]
     # Les valeurs de la RRD
     val = ':'.join(str(v) for v in values)
-    params += [str(time)+':'+val]
+    params += [str(t)+':'+val]
 
     return rrdtool.update(*params)
 

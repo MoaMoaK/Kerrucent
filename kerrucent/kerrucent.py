@@ -28,6 +28,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 from .scripts.graph import *
 from .scripts.rrd import *
 from .scripts.mail import *
+from .scripts.data import *
 
 
 
@@ -144,6 +145,55 @@ def unique (s) :
 
 # On lance un thread pour la vérification d'erreur et l'envoi d'email
 threading.Thread(target=test_error).start()
+
+
+
+
+def get_data() :
+    """Récupère en permanance les données sur le réseau
+    et rafraichit les données de la BDD toutes les 15 min environ
+    pour ne pas faire des requetes BDD ultra fréquentes"""
+
+    while (1) :
+        # On doit ramener le contexte de l'appli
+        # car on lance la requete BDD avant la 1ère requete HTTP
+        with app.app_context():
+
+            # On récupère les infos sur les catpeurs à surveiller (id, filename et email)
+            db = get_db()
+            cur = db.execute('SELECT probes.filename, probes.mac FROM probes')
+            probes_info = cur.fetchall()
+            probes_dict = make_dict(probes_info)
+
+        print ('Updated probes list')
+
+        # On déclenche pendant 15 minutes environ
+        # (sous hypothèse d'une donnée dispo en permanance
+        # et tous les capteurs envoie des données)
+        for i in range(60*15*len(probes_dict.keys())) :
+            ident, values = listen()
+            if ident in probes_dict.keys() :
+                update_rrd(probes_dict[ident], values)
+            time.sleep(1)
+
+
+
+def make_dict(data) :
+    res = {}
+    for d in data :
+        res[d['mac']] = d['filename']
+    return res
+
+
+# On lance un thread pour l'écoute des données
+threading.Thread(target=get_data).start()
+
+
+
+
+
+
+
 
 
 
