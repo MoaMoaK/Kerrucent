@@ -21,12 +21,12 @@ def create_rrd(name, start=None, alpha=0.000192522, beta=0.00000802250, period=8
     params += ['--start', str(start), '--step', '1']
     # Les Data Sources DS:<name>:<source_type>:<heartbeat>:<min>:<max>
     # Les 6 grandeurs qui stockent une valeur par seconde
-    params += ['DS:courant:GAUGE:1:0:30',
-            'DS:tension:GAUGE:1:0:300',
-            'DS:dephasage:GAUGE:1:0:360',
-            'DS:puiss_active:GAUGE:1:0:10000',
-            'DS:puiss_reactive:GAUGE:1:0:10000',
-            'DS:puiss_apparente:GAUGE:1:0:10000']
+    params += ['DS:courant:GAUGE:1:'+str(MINIMA[0])+':'+str(MAXIMA[0]),
+            'DS:tension:GAUGE:1:'+str(MINIMA[1])+':'+str(MAXIMA[1]),
+            'DS:dephasage:GAUGE:1:'+str(MINIMA[1])+':'+str(MAXIMA[1]),
+            'DS:puiss_active:GAUGE:1:'+str(MINIMA[1])+':'+str(MAXIMA[1]),
+            'DS:puiss_reactive:GAUGE:1:'+str(MINIMA[1])+':'+str(MAXIMA[1]),
+            'DS:puiss_apparente:GAUGE:1:'+str(MINIMA[1])+':'+str(MAXIMA[1])]
     # Les Round Robin Archives standard RRA:<aggregation_type>:<percentage_for_unknwon>:<steps>:<row>
     # On garde une valeur par seconde pendant 10 jours
     #          une valeur par minute pendant 90 jours
