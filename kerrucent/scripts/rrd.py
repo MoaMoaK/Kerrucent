@@ -48,7 +48,6 @@ def del_rrd(name):
     """Supprime une RRD"""
 
     os.remove(os.path.join(APP_ROOT, RRD_PATH, name+'.rrd'))
-
     return None
 
 
@@ -71,12 +70,13 @@ def update_rrd(name, values, t=None) :
 
 
 def tune_rrd_pred(name, alpha=None, beta=None) :
-    """Permet de modfiier les paramètres alpha et beta des RRD et de prédiction"""
+    """Permet de modifier les paramètres de prédiction alpha et beta des RRD"""
 
     if alpha :
         rrdtool.tune(os.path.join(APP_ROOT, RRD_PATH, name+'.rrd'), '--alpha', str(alpha))
     if beta :
         rrdtool.tune(os.path.join(APP_ROOT, RRD_PATH, name+'.rrd'), '--beta', str(beta))
+
     return None
 
 

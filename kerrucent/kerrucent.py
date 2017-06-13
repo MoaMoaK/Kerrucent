@@ -73,7 +73,7 @@ def init_db():
 def initdb():
     """Initializes the database."""
     init_db()
-    print('Initialized the database.')
+    log('Initialized the database.')
 
 def get_db():
     """Opens a new database connection if there is none yet for the
@@ -116,6 +116,7 @@ def test_error () :
             if has_error(p[0]['filename']) :
                 for j in range(len(p)) :
                     sendmail(p[j]['email'], text='Le capteur '+p[j]['name']+' a des erreurs')
+                    log('Email envoyé à '+p[j]['email']+' pour une erreur sur le capteur '+p[j]['name'])
 
         # On met le thread en puase pour pas spammer de mails et de vérifictions
         time.sleep(60)
@@ -149,6 +150,10 @@ threading.Thread(target=test_error).start()
 
 
 
+####################################################
+## Récupération des données des capteurs (thread) ##
+####################################################
+
 def get_data() :
     """Récupère en permanance les données sur le réseau
     et rafraichit les données de la BDD toutes les 15 min environ
@@ -159,13 +164,13 @@ def get_data() :
         # car on lance la requete BDD avant la 1ère requete HTTP
         with app.app_context():
 
-            # On récupère les infos sur les catpeurs à surveiller (id, filename et email)
+            # On récupère les infos sur les capteurs à remplir (filename et mac)
             db = get_db()
             cur = db.execute('SELECT probes.filename, probes.mac FROM probes')
             probes_info = cur.fetchall()
             probes_dict = make_dict(probes_info)
 
-        print ('Updated probes list')
+        log('Cache des capteurs à remplir mis à jour')
 
         # On déclenche pendant 15 minutes environ
         # (sous hypothèse d'une donnée dispo en permanance
@@ -179,21 +184,18 @@ def get_data() :
 
 
 def make_dict(data) :
+    """Transforme le résultat de la requete BDD en dictionnaire {identifiant : filename}"""
+
     res = {}
     for d in data :
         res[d['mac']] = d['filename']
+
     return res
+
 
 
 # On lance un thread pour l'écoute des données
 threading.Thread(target=get_data).start()
-
-
-
-
-
-
-
 
 
 
@@ -203,10 +205,18 @@ threading.Thread(target=get_data).start()
 #############################
 
 def saltpassword (password, salt) :
-    """Return a salted password according to the algorithm chosen"""
+    """Retourne un mot de passé salé selon l'algo sha256(pass+salt)"""
+
     saltedpassword = password + str(salt)
     return sha256(saltedpassword.encode('utf-8')).hexdigest()
 
+
+
+def log (message) :
+    """Print un message pour qu'il apparaisse dans les logs"""
+
+    print(time.ctime() + ' [INFO] ' + message)
+    return None
 
 
 
@@ -360,6 +370,7 @@ def remove_user(id):
         except :
             flash ('Une erreur est survenue lors de la suppression de '+user['username']+' de la BDD')
         else :
+            log('Utilisateur '+user['username']+' supprimé')
             flash('L\'utilisateur '+user['username']+' a bien été supprimé')
 
     # On revient sur la gestion des utilisateurs (pas besoin de page web dédiée)
@@ -403,6 +414,7 @@ def edit_user(id):
                 error_name = 'Une erreur est survenue lors de la modification du nom d\'utilisateur dans la base de donnée'
                 print(sys.exc_info())
             else:
+                log('Nom de '+user['username']+' changé en '+username)
                 flash ('Le nom d\'utilisateur de '+user['username']+' a bien été changé en '+username)
 
 
@@ -427,6 +439,7 @@ def edit_user(id):
                     error_pass = 'Une erreur est survenue lors de la modification du mot de passe dans la base de donnée'
                     print(sys.exc_info())
                 else :
+                    log('Mot de passe de '+user['username']+' changé')
                     flash('Le mot de passe de '+user['username']+' a correctement été modifié')
 
     # On recharge les modifications depuis la BDD pour prendre en compte les modif effectuées
@@ -474,6 +487,7 @@ def add_user():
                 error = 'Une erreur est survenue lors de l\'ajout de l\'utilisateur à la base de données'
                 print(sys.exc_info())
             else :
+                log('Utilisateur '+username+' ajouté')
                 flash('Le nouvel utilisateur '+username+' a correctement été ajouté')
 
     # On renvoie l'HTML avec les infos
@@ -538,6 +552,7 @@ def remove_probe(id):
                 flash('Une erreur est survenue lors de la suppression de '+probe['filename']+'.rrd')
                 print(sys.exc_info())
             else:
+                log('Capteur '+probe['name']+' supprimé')
                 flash('Le capteur '+probe['name']+' a bien été supprimé')
 
     # On redirige vers la page de gestion des cpateurs
@@ -581,6 +596,7 @@ def edit_probe(id):
                 error_name = 'Une erreur est survenue lors de la modification du nom du capteur dans la base de donnée'
                 print(sys.exc_info())
             else:
+                log('Nom du capteur '+probe['name']+' changé en '+name)
                 flash ('Le nom du capteur '+probe['name']+' a bien été changé en '+name)
 
         # Demande de changer la mac du capteur
@@ -598,6 +614,7 @@ def edit_probe(id):
                     error_mac = 'Une erreur est survenue lors de la modification de la MAC dans la base de donnée'
                     print(sys.exc_info())
                 else :
+                    log('Mac du capteur '+probe['name']+' changé')
                     flash('La mac du capteur '+probe['name']+' a correctement été modifié')
 
         # Demande de changer un paramètre de prédiction (on ne s'embête pas à différencier les 2 cas)
@@ -633,6 +650,7 @@ def edit_probe(id):
                         tune_rrd_pred(probe['filename'], alpha=probe['alpha'], beta=probe['beta'])
                         print(sys.exc_info())
                     else :
+                        log('Paramètres de prédiction de '+probe['name']+' changés')
                         flash('Les paramètres de prédiction de '+probe['name']+' ont correctement été changé')
 
     # On recharge les modifications depuis la BDD pour prendre en compte les modif effectuées
@@ -710,6 +728,7 @@ def add_probe():
                             del_rrd(final_filename)
                             print(sys.exc_info())
                         else :
+                            log('Capteur '+name+' ajouté')
                             flash('La nouvelle sonde '+name+' a été correctement ajoutée')
 
     # On renvoie l'HTML avec les infos
@@ -765,6 +784,7 @@ def remove_alert(id):
             flash('Une erreur est survenue lors de la suppression de l\'alerte')
             print(sys.exc_info())
         else :
+            log('Alerte n°'+str(id)+' supprimé')
             flash('L\'alerte a bien été supprimé')
 
     # On redirige vers la page de gestion des alertes
@@ -789,7 +809,7 @@ def edit_alert(id):
     db = get_db()
     cur = db.execute('SELECT email, probe_id FROM alerts WHERE id=?', [id])
     alert = cur.fetchone()
-    cur = db.execute('SELECT id FROM probes')
+    cur = db.execute('SELECT id, name FROM probes')
     probes = cur.fetchall()
 
     # On vérifie que l'id demandé correpond bien à une alerte
@@ -817,6 +837,7 @@ def edit_alert(id):
                     error_email = 'Une erreur est survenue lors de la modification de l\'email dans la base de donnée'
                     print(sys.exc_info())
                 else:
+                    log('Mail de l\'alerte n°'+str(id)+' changé')
                     flash ('L\'email '+alert['email']+' a bien été changé en '+email)
 
         # Demande de changement de capteur associé
@@ -838,6 +859,7 @@ def edit_alert(id):
                         error_probe = 'Une erreur est survenue lors de la modification du capteur associé dans la base de donnée'
                         print(sys.exc_info())
                     else :
+                        log('Capteur associé à l\'alerte n°'+str(id)+' changé')
                         flash('Le capteur associé a correctement été modifié')
                 else :
                     error_probe = 'Impossible de trouver le capteur que vous avez demandé'
@@ -900,6 +922,7 @@ def add_alert():
                             error = 'Une erreur est survenue lors de l\'ajout de l\'alerte à la base de donnée.'
                             print(sys.exc_info())
                         else :
+                            log('Nouvelle alerte ajoutée')
                             flash('La nouvelle alerte a été correctement ajoutée')
                 else :
                     error = 'Impossible de trouver le capteur demandé'
@@ -939,6 +962,7 @@ def login():
                 # On vérifie que le mot de pass correpond
                 if saltpassword(request.form['password'], user['salt']) == user['password'] :
                     session['logged_in'] = True
+                    log('Utilisateur '+request.form['username']+' connecté')
                     flash('Connecté')
                     # Si connexion réussie on revient à l'acceuil (pas besoin de revenir à /login/)
                     return redirect(url_for('accueil'))
