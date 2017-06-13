@@ -12,6 +12,6 @@ MAXIMA = [30, 300, 360, 10000, 10000, 10000]
 MINIMA = [0, 0, 0, 0, 0, 0]
 
 # L'IP du server pour les capteurs
-SERVER_IP = '10.2.6.155'
+SERVER_IP = ''
 # Le port d'écoute du serveur pour les capteurs
 SERVER_PORT = 5005

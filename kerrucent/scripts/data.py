@@ -16,7 +16,7 @@ def listen() :
     data, address = sock.recvfrom(1024)
 
     # On reforme les données
-    d = data.decode('utf-8').split('/')
+    d = data.decode('utf-8').replace('\x00', '').split('/')
 
     # On sépare les infos les unes des autres
     ident = d[0]
