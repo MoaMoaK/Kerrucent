@@ -14,30 +14,40 @@ Kerrucent est réalisé principalement grâce à [Flask](http://flask.pocoo.org/
 ## Installation, Configuration et Lancement initial
 
 On commence par se placer dans le dossier d'installation
+
 ```cd /path/to/install/dir/```
+
 ```mkdir kerucent```
+
 ```cd kerrucent```
 
 puis on clone le projet
+
 ```git clone <uri>```
 
 On installe ensuite python (>=3.4) et pip
+
 ```apt-get install python3.4 pip```
 
 Il peut être nécessaire de changer à la main la version de python
+
 ```ln -s /usr/bin/python /usr/bin/python3.4```
 
 Ensuite il reste à installer [Flask](http://flask.pocoo.org/)
+
 ```pip install Flask```
 
 Et voilà, la configuration initiale est maintenant prête, il reste plus qu'à lancer le serveur web. L'utilisation d'un screen est fortement conseillée.
 Pour l'exemple, le serveur sera lancé sur le port 80 mais attention il faut pour celà posséder les accès administrateur ce qui n'est pas nécessaire pour des ports n'appartenant pas à ceux réservés.
 Il faut d'abord s'assurer qu'aucun autre service n'occupe déjà le port choisi (exemple de apache2 qui empêche flask de se lancer sur le port 80) :
+
 ```netstat -tap```
 
 Puis on prépare l'environnement à lancer le serveur :
+
 ```export FLASK_APP=kerrucent```
 
 Enfin, on peut lancer le serveur qui ne devrait plus poser de problème
+
 ```flask run --host=kerrucent.rez-rennes.fr --port=80```
 
