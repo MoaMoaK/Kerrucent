@@ -11,7 +11,7 @@ L'algorithme de Holt-Winter Forecasting est aussi appliqué aux données et perm
 
 Kerrucent est réalisé principalement grâce à [Flask](http://flask.pocoo.org/). Il est donc codé en Python. Pour le stockage des données comme les utilisateurs ou les alertes, on utilise un simple base de données [SQLite](https://sqlite.org/). En ce qui concerne le stockage des données de consommation électrique on utilise [RRDTool](http://oss.oetiker.ch/rrdtool/) qui est fortement spécialisé dans le stockage de données temporelles et nous permet d'accéder facilement à des graphes et à des données de prédiction qui y sont déjà implémentés.
 
-## Installation, Configuration et Lancement initial
+## Installation
 
 On commence par se placer dans le dossier d'installation
 
@@ -38,6 +38,15 @@ Ensuite il reste à installer [Flask](http://flask.pocoo.org/)
 ```pip install Flask```
 
 Et voilà, la configuration initiale est maintenant prête, il reste plus qu'à lancer le serveur web. L'utilisation d'un screen est fortement conseillée.
+
+## Configuration initiale
+
+Il faut au préalable initialiser la base de données SQLite :
+
+```flask initdb```
+
+## Lancement du serveur
+
 Pour l'exemple, le serveur sera lancé sur le port 80 mais attention il faut pour celà posséder les accès administrateur ce qui n'est pas nécessaire pour des ports n'appartenant pas à ceux réservés.
 Il faut d'abord s'assurer qu'aucun autre service n'occupe déjà le port choisi (exemple de apache2 qui empêche flask de se lancer sur le port 80) :
 
